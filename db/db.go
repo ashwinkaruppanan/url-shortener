@@ -6,18 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var database = initDatabase()
-
-func initDatabase() *mongo.Database {
-	if err := godotenv.Load("../.env"); err != nil {
-		log.Fatal(err)
-	}
-
+func NewMongoDatabase() *mongo.Database {
 	mongoURI := os.Getenv("MONGODB_URI")
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
@@ -32,11 +25,11 @@ func initDatabase() *mongo.Database {
 		log.Fatal(err)
 	}
 
+	if err := client.Ping(context.TODO(), nil); err != nil {
+		log.Fatal(err)
+	}
+
 	log.Println("DB connection successful")
 
 	return client.Database(os.Getenv("DB_NAME"))
-}
-
-func CreateCollection(collectionName string) *mongo.Collection {
-	return database.Collection(collectionName)
 }

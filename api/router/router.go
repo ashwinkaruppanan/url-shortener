@@ -1,6 +1,8 @@
 package router
 
 import (
+	"example.com/url-shortener/api/handler"
+	"example.com/url-shortener/internal/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,10 +22,12 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-func Router(r *gin.Engine) {
+func NewRouter(r *gin.Engine, ser model.UserServiceInterface) {
+	h := handler.NewUserHandler(ser)
 
 	//Public routes
-	// public := r.Group("")
+	public := r.Group("")
+	public.POST("/signup", h.Signup)
 
 	// //Protected routes
 	// protected := r.Group("")
