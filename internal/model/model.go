@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -13,22 +14,34 @@ type CreateUserReq struct {
 	Password string `json:"password"`
 }
 
-type CreateUserRes struct {
-	UserID   primitive.ObjectID `json:"user_id"`
-	FullName string             `json:"full_name"`
-}
-
 type LoginUserReq struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
+type SignupLoginUserRes struct {
+	UserID       primitive.ObjectID `json:"user_id"`
+	FullName     string             `json:"full_name"`
+	AccessToken  string             `json:"access_token"`
+	RefreshToken string             `json:"refresh_token"`
+}
+
 type Url struct {
-	LongURL    string         `json:"long_url"`
-	ShortURL   string         `json:"short_url"`
-	NoOfClicks int            `json:"no_of_clicks"`
-	Device     map[string]int `json:"device"`
-	Location   map[string]int `json:"location"`
+	UrlID       primitive.ObjectID `json:"url_id" bson:"_id"`
+	UserID      primitive.ObjectID `json:"user_id" bson:"user_id"`
+	Label       string             `json:"label" bson:"label"`
+	LongURL     string             `json:"long_url" bson:"long_url"`
+	ShortURLKey string             `json:"short_url_key" bson:"short_url_key"`
+	NoOfClicks  int                `json:"no_of_clicks" bson:"no_of_clicks"`
+	Device      map[string]int     `json:"device"`
+	Location    map[string]int     `json:"location"`
+	CreatedAt   time.Time          `json:"created_at" bson:"created_at"`
+}
+
+type CreateUrlReq struct {
+	Label       string `json:"label"`
+	LongURL     string `json:"long_url"`
+	ShortURLKey string `json:"short_url_key"`
 }
 
 type User struct {
@@ -36,15 +49,32 @@ type User struct {
 	FullName   string             `json:"full_name"`
 	Email      string             `json:"email"`
 	Password   string             `json:"password"`
-	Urls       []Url              `json:"urls"`
 	Created_at time.Time          `json:"created_at"`
+}
+
+type JwtCustomAccessClaims struct {
+	Name   string `json:"name"`
+	UserID string `json:"user_id"`
+	jwt.RegisteredClaims
+}
+
+type JwtCustomRefreshClaims struct {
+	UserID string `json:"user_id"`
+	jwt.RegisteredClaims
 }
 
 type UserRepositoryInterface interface {
 	Signup(ctx context.Context, user *User) error
 	CheckUniqueEmail(ctx context.Context, email string) (int64, error)
+	GetUserByEmail(ctx context.Context, email string) (*User, error)
+	CheckUniqueUrlKey(ctx context.Context, key string) (int64, error)
+	InsertUrl(ctx context.Context, url *Url) error
+	GetAllURLs(ctx context.Context, userID primitive.ObjectID) (*[]Url, error)
 }
 
 type UserServiceInterface interface {
-	Signup(c context.Context, userReq *CreateUserReq) (*CreateUserRes, error)
+	Signup(c context.Context, userReq *CreateUserReq) (*SignupLoginUserRes, error)
+	Login(c context.Context, loginReq *LoginUserReq) (*SignupLoginUserRes, error)
+	CreateURL(c context.Context, userID string, urlReq *CreateUrlReq) (string, error)
+	GetAllURLs(c context.Context, userID string) (*[]Url, error)
 }

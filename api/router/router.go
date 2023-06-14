@@ -1,12 +1,15 @@
 package router
 
 import (
+	"os"
+
 	"example.com/url-shortener/api/handler"
+	"example.com/url-shortener/api/middleware"
 	"example.com/url-shortener/internal/model"
 	"github.com/gin-gonic/gin"
 )
 
-func CORSMiddleware() gin.HandlerFunc {
+func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -25,11 +28,17 @@ func CORSMiddleware() gin.HandlerFunc {
 func NewRouter(r *gin.Engine, ser model.UserServiceInterface) {
 	h := handler.NewUserHandler(ser)
 
+	r.Use(corsMiddleware())
 	//Public routes
 	public := r.Group("")
 	public.POST("/signup", h.Signup)
+	public.POST("/login", h.Login)
 
 	// //Protected routes
-	// protected := r.Group("")
+	protected := r.Group("")
+	protected.Use(middleware.AuthMiddleware(os.Getenv("ACCESS_TOKEN_SECRET")))
+	protected.GET("/logout", h.Logout)
+	protected.POST("/create-url", h.CreatURL)
+	protected.GET("/get-all-urls", h.GetAllURLs)
 
 }
