@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"example.com/url-shortener/internal/model"
+	"example.com/url-shortener/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/mssola/useragent"
 )
 
 type Handler struct {
@@ -27,11 +29,11 @@ func (h *Handler) Signup(c *gin.Context) {
 
 	res, err := h.service.Signup(c, &user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		// c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.CjsonError(c, err)
 		return
 	}
 
-	// c.SetCookie("token", res.AccessToken, 10*60, "/", "localhost", false, true)
 	cookie := http.Cookie{
 		Name:     "token",
 		Value:    res.AccessToken,
@@ -58,7 +60,7 @@ func (h *Handler) Login(c *gin.Context) {
 
 	res, err := h.service.Login(c, &loginReq)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		utils.CjsonError(c, err)
 		return
 	}
 
@@ -79,6 +81,19 @@ func (h *Handler) Login(c *gin.Context) {
 }
 
 func (h *Handler) Logout(c *gin.Context) {
+
+	token, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.service.Logout(c, token)
+	if err != nil {
+		utils.CjsonError(c, err)
+		return
+	}
+
 	c.SetCookie("token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, gin.H{"success": "logged out successfully"})
 }
@@ -96,7 +111,7 @@ func (h *Handler) CreatURL(c *gin.Context) {
 
 	id, err := h.service.CreateURL(c, userID, &urlReq)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.CjsonError(c, err)
 		return
 	}
 
@@ -108,9 +123,62 @@ func (h *Handler) GetAllURLs(c *gin.Context) {
 
 	res, err := h.service.GetAllURLs(c, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		utils.CjsonError(c, err)
 		return
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) Refresh(c *gin.Context) {
+	refreshToken := c.GetHeader("refresh-token")
+
+	access_token, err := h.service.RefreshAccessToken(c, refreshToken)
+	if err != nil {
+		utils.CjsonError(c, err)
+		return
+	}
+
+	cookie := http.Cookie{
+		Name:     "token",
+		Value:    *access_token,
+		Expires:  time.Now().Add(10 * time.Minute),
+		Path:     "/",
+		Domain:   "localhost",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+	}
+
+	http.SetCookie(c.Writer, &cookie)
+
+	c.JSON(http.StatusOK, gin.H{"success": "new access token set in cookie"})
+}
+
+func (h *Handler) RedirectURL(c *gin.Context) {
+	key := c.Param("key")
+
+	ua := c.Request.UserAgent()
+	userAgent := useragent.New(ua)
+
+	ip := c.ClientIP()
+	if ip == "127.0.0.1" || ip == "::1" {
+		ip = "157.51.198.201"
+	}
+
+	device := "Android"
+	if userAgent.OSInfo().Name != "" {
+		device = userAgent.OSInfo().Name
+	}
+	redirectURl, err := h.service.RedirectURL(c, key, ip, device)
+	if err != nil {
+		if err.Error() == "invalid enpoint" {
+			c.Redirect(http.StatusFound, "/")
+		} else {
+			utils.CjsonError(c, err)
+			return
+		}
+	}
+
+	c.Redirect(http.StatusFound, redirectURl)
 }

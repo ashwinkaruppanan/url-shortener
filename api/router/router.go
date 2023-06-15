@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	"os"
 
 	"example.com/url-shortener/api/handler"
@@ -31,8 +32,13 @@ func NewRouter(r *gin.Engine, ser model.UserServiceInterface) {
 	r.Use(corsMiddleware())
 	//Public routes
 	public := r.Group("")
+	public.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, "home")
+	})
 	public.POST("/signup", h.Signup)
 	public.POST("/login", h.Login)
+	public.GET("/refresh", h.Refresh)
+	public.GET("/:key", h.RedirectURL)
 
 	// //Protected routes
 	protected := r.Group("")
