@@ -3,33 +3,30 @@ package router
 import (
 	"net/http"
 	"os"
+	"time"
 
 	"example.com/url-shortener/api/handler"
 	"example.com/url-shortener/api/middleware"
 	"example.com/url-shortener/internal/model"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
-
-func corsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	}
-}
 
 func NewRouter(r *gin.Engine, ser model.UserServiceInterface) {
 	h := handler.NewUserHandler(ser)
 
-	r.Use(corsMiddleware())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "http://localhost:5173"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
+
 	//Public routes
 	public := r.Group("")
 	public.GET("/", func(ctx *gin.Context) {
