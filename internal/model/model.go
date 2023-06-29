@@ -22,6 +22,7 @@ type LoginUserReq struct {
 type SignupLoginUserRes struct {
 	UserID       primitive.ObjectID `json:"user_id"`
 	FullName     string             `json:"full_name"`
+	Email string `json:"email"`
 	AccessToken  string             `json:"access_token"`
 	RefreshToken string             `json:"refresh_token"`
 }

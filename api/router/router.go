@@ -16,13 +16,13 @@ func NewRouter(r *gin.Engine, ser model.UserServiceInterface) {
 	h := handler.NewUserHandler(ser)
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins:     []string{"https://reago.netlify.app/"},
 		AllowMethods:     []string{"GET", "POST"},
-		AllowHeaders:     []string{"Content-Type"},
+		AllowHeaders:     []string{"Content-Type", "refresh-token"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == "http://localhost:5173"
+			return origin == "https://reago.netlify.app/"
 		},
 		MaxAge: 12 * time.Hour,
 	}))
@@ -34,7 +34,7 @@ func NewRouter(r *gin.Engine, ser model.UserServiceInterface) {
 	})
 	public.POST("/signup", h.Signup)
 	public.POST("/login", h.Login)
-	public.GET("/refresh", h.Refresh)
+	public.POST("/refresh", h.Refresh)
 	public.GET("/:key", h.RedirectURL)
 
 	// //Protected routes

@@ -71,6 +71,7 @@ func (u *userServ) Signup(c context.Context, userReq *model.CreateUserReq) (*mod
 	res := &model.SignupLoginUserRes{
 		UserID:       s.UserID,
 		FullName:     s.FullName,
+		Email:  s.Email,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
@@ -111,6 +112,7 @@ func (u *userServ) Login(c context.Context, loginReq *model.LoginUserReq) (*mode
 	res := &model.SignupLoginUserRes{
 		UserID:       user.UserID,
 		FullName:     user.FullName,
+		Email:  user.Email,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}

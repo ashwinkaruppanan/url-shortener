@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -37,7 +38,7 @@ func (h *Handler) Signup(c *gin.Context) {
 	cookie := http.Cookie{
 		Name:     "token",
 		Value:    res.AccessToken,
-		Expires:  time.Now().Add(10 * time.Minute),
+		Expires:  time.Now().Add(10 * time.Hour),
 		Path:     "/",
 		Domain:   "localhost",
 		HttpOnly: true,
@@ -67,7 +68,7 @@ func (h *Handler) Login(c *gin.Context) {
 	cookie := http.Cookie{
 		Name:     "token",
 		Value:    res.AccessToken,
-		Expires:  time.Now().Add(10 * time.Minute),
+		Expires:  time.Now().Add(10 * time.Hour),
 		Path:     "/",
 		Domain:   "localhost",
 		HttpOnly: true,
@@ -132,7 +133,7 @@ func (h *Handler) GetAllURLs(c *gin.Context) {
 
 func (h *Handler) Refresh(c *gin.Context) {
 	refreshToken := c.GetHeader("refresh-token")
-
+	log.Println(refreshToken)
 	access_token, err := h.service.RefreshAccessToken(c, refreshToken)
 	if err != nil {
 		utils.CjsonError(c, err)
@@ -172,13 +173,12 @@ func (h *Handler) RedirectURL(c *gin.Context) {
 	}
 	redirectURl, err := h.service.RedirectURL(c, key, ip, device)
 	if err != nil {
-		if err.Error() == "invalid enpoint" {
-			c.Redirect(http.StatusFound, "/")
-		} else {
+		
 			utils.CjsonError(c, err)
 			return
-		}
+		
 	}
 
-	c.Redirect(http.StatusFound, redirectURl)
+	
+	c.JSON(http.StatusOK, redirectURl)
 }

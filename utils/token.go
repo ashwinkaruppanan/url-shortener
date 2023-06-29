@@ -9,7 +9,7 @@ import (
 )
 
 func GenerateAccessToken(user *model.User, secret string, expiry int) (string, error) {
-	exp := time.Now().Add(time.Minute * time.Duration(expiry))
+	exp := time.Now().Add(time.Hour * time.Duration(expiry))
 	claims := &model.JwtCustomAccessClaims{
 		UserID: user.UserID.Hex(),
 		Name:   user.FullName,
