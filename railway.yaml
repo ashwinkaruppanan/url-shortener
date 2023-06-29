@@ -1,0 +1,2 @@
+commands:
+  start: ./build/final
