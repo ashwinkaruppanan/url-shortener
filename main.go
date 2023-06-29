@@ -9,13 +9,12 @@ import (
 	"example.com/url-shortener/internal/repository"
 	"example.com/url-shortener/internal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Fatal(err)
-	}
+	// if err := godotenv.Load(".env"); err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	r := gin.Default()
 
