@@ -1,2 +1,2 @@
-[commands]
-  build = "go build -o ./bin/myapp ./cmd/main.go"
+# [commands]
+#   build = "go build -o ./bin/myapp ./cmd/main.go"
