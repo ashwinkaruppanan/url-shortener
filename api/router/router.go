@@ -16,13 +16,13 @@ func NewRouter(r *gin.Engine, ser model.UserServiceInterface) {
 	h := handler.NewUserHandler(ser)
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://reago.netlify.app/"},
+		AllowOrigins:     []string{"https://reago.netlify.app"},
 		AllowMethods:     []string{"GET", "POST"},
 		AllowHeaders:     []string{"Content-Type", "refresh-token"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://reago.netlify.app/"
+			return origin == "https://reago.netlify.app"
 		},
 		MaxAge: 12 * time.Hour,
 	}))
