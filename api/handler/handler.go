@@ -43,7 +43,6 @@ func (h *Handler) Signup(c *gin.Context) {
 		Domain:   "https://reago.netlify.app",
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
 	}
 
 	http.SetCookie(c.Writer, &cookie)
@@ -73,7 +72,6 @@ func (h *Handler) Login(c *gin.Context) {
 		Domain:   "https://reago.netlify.app",
 		HttpOnly: true,
 		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
 	}
 
 	http.SetCookie(c.Writer, &cookie)
