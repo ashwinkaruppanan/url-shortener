@@ -40,9 +40,9 @@ func (h *Handler) Signup(c *gin.Context) {
 		Value:    res.AccessToken,
 		Expires:  time.Now().Add(10 * time.Hour),
 		Path:     "/",
-		Domain:   "localhost",
+		Domain:   "https://reago.netlify.app",
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 	}
 
@@ -70,9 +70,9 @@ func (h *Handler) Login(c *gin.Context) {
 		Value:    res.AccessToken,
 		Expires:  time.Now().Add(10 * time.Hour),
 		Path:     "/",
-		Domain:   "localhost",
+		Domain:   "https://reago.netlify.app",
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 	}
 
