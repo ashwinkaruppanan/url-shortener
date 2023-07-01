@@ -125,7 +125,7 @@ func (u *userServ) CreateURL(c context.Context, userID string, urlReq *model.Cre
 	defer cancel()
 
 	wordSet := make(map[string]bool)
-	words := []string{"signup", "login", "refresh", "logout", "create-url", "get-all-urls"}
+	words := []string{"signup", "login", "refresh", "logout", "create-url", "get-all-urls", "product", "pricing", "dashboard", "create"}
 
 	for _, word := range words {
 		wordSet[word] = true
