@@ -45,10 +45,19 @@ func (h *Handler) Signup(c *gin.Context) {
 		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
 	}
+	cookie_login := http.Cookie{
+		Name:     "login",
+		Value:    "true",
+		Expires:  time.Now().Add(10 * time.Hour),
+		Path:     "/",
+		Domain:   "https://reago.netlify.app",
+		HttpOnly: false,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	}
 
-	c.SetCookie("login", "true", 36000, "/", "https://reago.netlify.app", false, true)
 	http.SetCookie(c.Writer, &cookie)
-	
+	http.SetCookie(c.Writer, &cookie_login)
 
 	c.JSON(http.StatusCreated, *res)
 }
@@ -77,10 +86,19 @@ func (h *Handler) Login(c *gin.Context) {
 		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
 	}
-	
+	cookie_login := http.Cookie{
+		Name:     "login",
+		Value:    "true",
+		Expires:  time.Now().Add(10 * time.Hour),
+		Path:     "/",
+		Domain:   "https://reago.netlify.app",
+		HttpOnly: false,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	}
 
 	http.SetCookie(c.Writer, &cookie)
-	c.SetCookie("login", "true", 36000, "/", "https://reago.netlify.app", false, true)
+	http.SetCookie(c.Writer, &cookie_login)
 	
 
 	c.JSON(http.StatusOK, res)
